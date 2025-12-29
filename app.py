@@ -112,10 +112,9 @@ def get_response(intent, user_text):
 
     return candidates.iloc[best_idx]["response"]
 
-# ======================================================
-# === API ADDITION (TIDAK MENGUBAH LOGIC CHATBOT) ======
-# ======================================================
 
+
+# RestAPI
 app = FastAPI(
     title="Chatbot Informasi Kesehatan API",
     description="Hybrid LSTM + TF-IDF Chatbot",
