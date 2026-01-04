@@ -21,9 +21,11 @@ LABEL_ENCODER_PATH = "label_encoder.pkl"
 DATASET_PATH = "dataset_kesehatan_fixed.csv"
 
 MAX_LEN = 20
+
 CONFIDENCE_THRESHOLD = 0.60
 SIMILARITY_THRESHOLD = 0.20
 FINAL_SCORE_THRESHOLD = 0.20
+
 
 # LOAD MODEL & TOOLS
 print("[INFO] Loading model & tools...")
@@ -109,7 +111,11 @@ def get_response(intent, user_text, intent_confidence):
     if final_score < FINAL_SCORE_THRESHOLD:
         return "Maaf, pertanyaan tersebut belum dapat saya jawab dengan tepat."
 
+    if sims[best_idx] < SIMILARITY_THRESHOLD:
+        return "Maaf, pertanyaan tersebut di luar cakupan informasi saya."
+
     return candidates.iloc[best_idx]["response"]
+    
 
 
 # API SETUP
