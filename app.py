@@ -110,10 +110,11 @@ def get_response(intent, user_text):
     sims = cosine_similarity(user_vector, candidate_vectors)[0]
     best_idx = sims.argmax()
 
-    return candidates.iloc[best_idx]["response"]
-    
     if sims[best_idx] < SIMILARITY_THRESHOLD:
         return "Maaf, pertanyaan tersebut di luar cakupan informasi saya."
+
+    return candidates.iloc[best_idx]["response"]
+    
 
 # RestAPI
 app = FastAPI(
