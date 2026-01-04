@@ -22,7 +22,7 @@ DATASET_PATH = "dataset_kesehatan_fixed.csv"
 
 MAX_LEN = 20
 CONFIDENCE_THRESHOLD = 0.55
-SIMILARITY_THRESHOLD = 0.15
+SIMILARITY_THRESHOLD = 0.5
 
 # LOAD MODEL & TOOLS
 print("[INFO] Loading model & tools...")
