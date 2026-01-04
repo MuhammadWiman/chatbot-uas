@@ -1,4 +1,4 @@
-# CHATBOT INFORMASI KESEHATAN (API)
+# CHATBOT INFORMASI KESEHATAN (CLI)
 # Hybrid: LSTM (Intent) + Rule Topic + TF-IDF Similarity
 from fastapi import FastAPI
 from pydantic import BaseModel
@@ -21,11 +21,8 @@ LABEL_ENCODER_PATH = "label_encoder.pkl"
 DATASET_PATH = "dataset_kesehatan_fixed.csv"
 
 MAX_LEN = 20
-
-CONFIDENCE_THRESHOLD = 0.60
-SIMILARITY_THRESHOLD = 0.20
-FINAL_SCORE_THRESHOLD = 0.20
-
+CONFIDENCE_THRESHOLD = 0.70
+SIMILARITY_THRESHOLD = 0.01
 
 # LOAD MODEL & TOOLS
 print("[INFO] Loading model & tools...")
@@ -91,12 +88,20 @@ def predict_intent(text):
 
 # RESPONSE SELECTION
 
-def get_response(intent, user_text, intent_confidence):
+def get_response(intent, user_text):
     user_text_clean = user_text.lower()
 
     candidates = df_kb[df_kb["intent"] == intent]
     if len(candidates) == 0:
         return "Maaf, saya belum memiliki informasi tersebut."
+
+    topic = detect_topic(user_text_clean)
+    if topic:
+        topic_candidates = candidates[
+            candidates["text"].str.lower().str.contains(topic)
+        ]
+        if len(topic_candidates) > 0:
+            candidates = topic_candidates
 
     candidate_texts = candidates["text"].str.lower().tolist()
     candidate_vectors = tfidf.transform(candidate_texts)
@@ -104,21 +109,12 @@ def get_response(intent, user_text, intent_confidence):
 
     sims = cosine_similarity(user_vector, candidate_vectors)[0]
     best_idx = sims.argmax()
-    best_similarity = sims[best_idx]
-
-    final_score = intent_confidence * best_similarity
-
-    if final_score < FINAL_SCORE_THRESHOLD:
-        return "Maaf, pertanyaan tersebut belum dapat saya jawab dengan tepat."
-
-    if sims[best_idx] < SIMILARITY_THRESHOLD:
-        return "Maaf, pertanyaan tersebut di luar cakupan informasi saya."
 
     return candidates.iloc[best_idx]["response"]
-    
 
 
-# API SETUP
+
+# FASTAPI SETUP
 app = FastAPI(
     title="Chatbot Informasi Kesehatan API",
     description="Hybrid LSTM + TF-IDF Chatbot",
@@ -139,15 +135,7 @@ def chat_api(req: ChatRequest):
     user_input = req.message
 
     intent, confidence = predict_intent(user_input)
-
-    if intent == "unknown":
-        return {
-            "intent": "unknown",
-            "confidence": float(confidence),
-            "response": "Maaf, saya belum memahami pertanyaan tersebut."
-        }
-
-    response = get_response(intent, user_input, confidence)
+    response = get_response(intent, user_input)
 
     return {
         "intent": intent,
