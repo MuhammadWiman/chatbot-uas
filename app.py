@@ -18,7 +18,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 MODEL_PATH = "model_chatbot_lstm_final.h5"
 TOKENIZER_PATH = "tokenizer.pkl"
 LABEL_ENCODER_PATH = "label_encoder.pkl"
-DATASET_PATH = "dataset_chatbot_kesehatan_final_v2.csv"
+DATASET_PATH = "dataset_kesehatan_final_v2.csv"
 
 MAX_LEN = 20
 CONFIDENCE_THRESHOLD = 0.70
